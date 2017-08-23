@@ -15,18 +15,74 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from __future__ import print_function
+
 import argparse
+import io
+
+from whereto import parser
+from whereto import rules
+
+
+def process_tests(ruleset, tests):
+    """Run the tests against the ruleset and return the results.
+
+    Results are generated as tuples containing the inputs that did not
+    match the expected value. The first element is the test tuple
+    (line, input, expected), and the second element is the list of any
+    rules that did match the input pattern.
+
+    :param ruleset: The redirect rules.
+    :type ruleset: RuleSet
+
+    """
+    for linenum, input, code, expected in tests:
+        matches = list(ruleset.match(input))
+        if len(matches) == 1:
+            match = matches[0]
+            if (code, expected) == match[1:]:
+                continue
+        yield ((linenum, input, code, expected), matches)
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
         'htaccess_file',
         help='file with rewrite rules',
     )
-    parser.add_argument(
+    arg_parser.add_argument(
         'test_file',
         help='file with test data',
     )
-    args = parser.parse_args()
-    print(args)
+    args = arg_parser.parse_args()
+
+    ruleset = rules.RuleSet()
+    with io.open(args.htaccess_file, 'r', encoding='utf-8') as f:
+        for linenum, params in parser.parse_rules(f):
+            ruleset.add(linenum, *params)
+
+    with io.open(args.test_file, 'r', encoding='utf-8') as f:
+        tests = [
+            (linenum,) + tuple(params)
+            for linenum, params in parser.parse_rules(f)
+        ]
+
+    failures = 0
+    for test, matches in process_tests(ruleset, tests):
+        failures += 1
+        if not matches:
+            print('No rule matched test on line {}: {}'.format(
+                test[0], ' '.join(test[1:]))
+            )
+        else:
+            print('Test on line {} did not produce expected result: {}'.format(
+                test[0], ' '.join(test[1:]))
+            )
+            for match in matches:
+                print('  {}'.format(ruleset[match[0]]))
+
+    if failures:
+        print('\n{} failures'.format(failures))
+        return 1
+    return 0

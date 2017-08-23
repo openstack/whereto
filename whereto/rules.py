@@ -82,11 +82,16 @@ class RuleSet(object):
 
     def __init__(self):
         self._rules = []
+        self._by_num = {}
 
     def add(self, linenum, *params):
         rule_type = params[0].lower()
         rule = self._factories[rule_type](linenum, *params)
         self._rules.append(rule)
+        self._by_num[linenum] = rule
+
+    def __getitem__(self, index):
+        return self._by_num[index]
 
     def __iter__(self):
         return iter(self._rules)
