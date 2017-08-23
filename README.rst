@@ -1,19 +1,14 @@
-===============================
-whereto
-===============================
+=========
+ whereto
+=========
 
 Test Apache redirect rules.
 
-Please fill here a long description which must be at least 3 lines wrapped on
-80 cols, so that distribution package maintainers can use it in their packages.
-Note that this is a hard requirement.
+whereto is an app for testing redirect rules like what may appear in a
+.htaccess file for Apache. It provides a way to test those rules in CI
+jobs.
 
 * Free software: Apache license
 * Documentation: http://docs.openstack.org/developer/whereto
 * Source: http://git.openstack.org/cgit/openstack/whereto
 * Bugs: http://bugs.launchpad.net/whereto
-
-Features
---------
-
-* TODO
