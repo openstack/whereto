@@ -26,7 +26,7 @@ class TestParseRules(base.TestCase):
         return list(parser.parse_rules(input))
 
     def test_skip_comments(self):
-        input = """
+        input = u"""
         #
         """
         self.assertEqual(
@@ -35,7 +35,7 @@ class TestParseRules(base.TestCase):
         )
 
     def test_skip_blank_lines(self):
-        input = """
+        input = u"""
 
         """
         self.assertEqual(
@@ -44,7 +44,7 @@ class TestParseRules(base.TestCase):
         )
 
     def test_no_quotes(self):
-        input = """
+        input = u"""
         redirect /path /new/path
         """
         self.assertEqual(
@@ -53,7 +53,7 @@ class TestParseRules(base.TestCase):
         )
 
     def test_strip_quotes(self):
-        input = """
+        input = u"""
         redirectmatch 301 "^/releases.*$" http://releases.openstack.org$1
         """
         self.assertEqual(
