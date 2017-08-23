@@ -29,3 +29,4 @@ def main():
         help='file with test data',
     )
     args = parser.parse_args()
+    print(args)
