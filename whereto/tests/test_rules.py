@@ -155,3 +155,28 @@ class TestRuleSet(base.TestCase):
         )
         self.assertEqual(1, len(self.ruleset._rules))
         self.assertIsInstance(self.ruleset._rules[0], rules.RedirectMatch)
+
+    def test_match_one(self):
+        self.ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path',
+        )
+        self.assertEqual(
+            [(1, '301', '/new/path')],
+            list(self.ruleset.match('/path')),
+        )
+
+    def test_match_multiple(self):
+        self.ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path',
+        )
+        self.ruleset.add(
+            2,
+            'redirect', '301', '/path', '/other/path',
+        )
+        self.assertEqual(
+            [(1, '301', '/new/path'),
+             (2, '301', '/other/path')],
+            list(self.ruleset.match('/path')),
+        )

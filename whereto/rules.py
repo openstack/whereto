@@ -87,3 +87,12 @@ class RuleSet(object):
         rule_type = params[0].lower()
         rule = self._factories[rule_type](linenum, *params)
         self._rules.append(rule)
+
+    def __iter__(self):
+        return iter(self._rules)
+
+    def match(self, path):
+        for rule in self:
+            m = rule.match(path)
+            if m is not None:
+                yield (rule.linenum,) + m
