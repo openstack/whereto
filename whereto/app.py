@@ -27,8 +27,11 @@ from whereto import rules
 def process_tests(ruleset, tests):
     """Run the tests against the ruleset and return the results.
 
-    Results are generated as tuples containing the inputs that did not
-    match the expected value. The first element is the test tuple
+    The return value is a tuple containing a list of tuples with the
+    inputs that did not match the expected value, and a set containing
+    the line numbers of the rules that never matched an input test.
+
+    The first element of the mismatched tuples is the test tuple
     (line, input, expected), and the second element is the list of any
     rules that did match the input pattern.
 
@@ -36,17 +39,44 @@ def process_tests(ruleset, tests):
     :type ruleset: RuleSet
 
     """
+    used = set()
+    mismatches = []
     for linenum, input, code, expected in tests:
         matches = list(ruleset.match(input))
         if len(matches) == 1:
             match = matches[0]
             if (code, expected) == match[1:]:
+                used.add(match[0])
                 continue
-        yield ((linenum, input, code, expected), matches)
+        mismatches.append(
+            ((linenum, input, code, expected), matches)
+        )
+    untested = set(ruleset.all_ids) - used
+    return (mismatches, untested)
 
 
 def main():
     arg_parser = argparse.ArgumentParser()
+    group = arg_parser.add_mutually_exclusive_group()
+    group.add_argument(
+        '--ignore-untested',
+        action='store_false',
+        dest='error_untested',
+        default=True,
+        help='ignore untested rules',
+    )
+    group.add_argument(
+        '--error-untested',
+        action='store_true',
+        dest='error_untested',
+        help='error if there are untested rules',
+    )
+    arg_parser.add_argument(
+        '-q', '--quiet',
+        action='store_true',
+        default=False,
+        help='run quietly',
+    )
     arg_parser.add_argument(
         'htaccess_file',
         help='file with rewrite rules',
@@ -69,7 +99,8 @@ def main():
         ]
 
     failures = 0
-    for test, matches in process_tests(ruleset, tests):
+    mismatches, untested = process_tests(ruleset, tests)
+    for test, matches in mismatches:
         failures += 1
         if not matches:
             print('No rule matched test on line {}: {}'.format(
@@ -81,6 +112,15 @@ def main():
             )
             for match in matches:
                 print('  {}'.format(ruleset[match[0]]))
+
+    if untested:
+        if not args.quiet:
+            print('')
+        for linenum in sorted(untested):
+            if not args.quiet:
+                print('Untested rule: {}'.format(ruleset[linenum]))
+            if args.error_untested:
+                failures += 1
 
     if failures:
         print('\n{} failures'.format(failures))

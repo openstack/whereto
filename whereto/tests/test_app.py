@@ -28,11 +28,11 @@ class TestProcessTests(base.TestCase):
         )
 
     def test_one_match(self):
-        actual = list(app.process_tests(
+        actual = app.process_tests(
             self.ruleset,
             [(1, '/path', '301', '/new/path')],
-        ))
-        expected = []
+        )
+        expected = ([], set())
         self.assertEqual(expected, actual)
 
     def test_two_matches(self):
@@ -40,13 +40,14 @@ class TestProcessTests(base.TestCase):
             2,
             'redirect', '301', '/path', '/duplicate/redirect',
         )
-        actual = list(app.process_tests(
+        actual = app.process_tests(
             self.ruleset,
             [(1, '/path', '301', '/new/path')],
-        ))
-        expected = [
-            ((1, '/path', '301', '/new/path'),
-             [(1, '301', '/new/path'),
-              (2, '301', '/duplicate/redirect')])
-        ]
+        )
+        expected = (
+            [((1, '/path', '301', '/new/path'),
+              [(1, '301', '/new/path'),
+               (2, '301', '/duplicate/redirect')])],
+            {1, 2},
+        )
         self.assertEqual(expected, actual)

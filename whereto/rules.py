@@ -96,6 +96,10 @@ class RuleSet(object):
     def __iter__(self):
         return iter(self._rules)
 
+    @property
+    def all_ids(self):
+        return list(self._by_num.keys())
+
     def match(self, path):
         for rule in self:
             m = rule.match(path)
