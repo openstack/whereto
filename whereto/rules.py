@@ -70,3 +70,20 @@ class RedirectMatch(Rule):
         if m:
             return (self.code, self.regex.sub(self.target_repl, path))
         return None
+
+
+class RuleSet(object):
+    "An ordered collection of rules."
+
+    _factories = {
+        'redirect': Redirect,
+        'redirectmatch': RedirectMatch,
+    }
+
+    def __init__(self):
+        self._rules = []
+
+    def add(self, linenum, *params):
+        rule_type = params[0].lower()
+        rule = self._factories[rule_type](linenum, *params)
+        self._rules.append(rule)

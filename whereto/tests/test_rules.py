@@ -132,3 +132,26 @@ class TestRedirectMatch(base.TestCase):
             (1, 'redirectmatch', '301', '/the/path', '/new/path',
              'extra-value'),
         )
+
+
+class TestRuleSet(base.TestCase):
+
+    def setUp(self):
+        super(TestRuleSet, self).setUp()
+        self.ruleset = rules.RuleSet()
+
+    def test_add_redirect(self):
+        self.ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path',
+        )
+        self.assertEqual(1, len(self.ruleset._rules))
+        self.assertIsInstance(self.ruleset._rules[0], rules.Redirect)
+
+    def test_add_redirectmatch(self):
+        self.ruleset.add(
+            1,
+            'redirectmatch', '301', '/path', '/new/path',
+        )
+        self.assertEqual(1, len(self.ruleset._rules))
+        self.assertIsInstance(self.ruleset._rules[0], rules.RedirectMatch)
