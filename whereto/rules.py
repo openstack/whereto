@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2010-2011 OpenStack Foundation
+# Copyright (c) 2013 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+class Rule(object):
+    "Base class for rules."
+
+    def __init__(self, linenum, *params):
+        self.linenum = linenum
+        self._params = params
+        if len(params) == 4:
+            # redirect code pattern target
+            self.code = params[1]
+            self.pattern = params[2]
+            self.target = params[3]
+        elif len(params) == 3:
+            # redirect pattern target
+            # (code is implied)
+            self.code = '301'
+            self.pattern = params[1]
+            self.target = params[2]
+        else:
+            raise ValueError('Could not understand rule {}'.format(params))
+
+    def __str__(self):
+        return '[{}] {}'.format(
+            self.linenum,
+            ' '.join(self._params),
+        )
+
+    def match(self, path):
+        raise NotImplementedError('Base class does not implement match()')
+
+
+class Redirect(Rule):
+    "A Redirect rule."
+
+    def match(self, path):
+        if path == self.pattern:
+            return (self.code, self.target)
+        return None
