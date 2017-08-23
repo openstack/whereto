@@ -65,4 +65,70 @@ class TestRedirect(base.TestCase):
             rules.Redirect,
             (1, 'redirect', '301', '/the/path', '/new/path', 'extra-value'),
         )
+
+
+class TestRedirectMatch(base.TestCase):
+
+    def test_match(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/user/.*$', '/pike/user/',
+        )
+        self.assertEqual(
+            ('301', '/pike/user/'),
+            rule.match('/user/'),
+        )
+
+    def test_match_with_group(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/$1',
+        )
+        self.assertEqual(
+            ('301', '/pike/user/foo'),
+            rule.match('/user/foo'),
+        )
+
+    def test_no_match(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/user/.*$', '/pike/user/',
+        )
+        self.assertIsNone(
+            rule.match('/different/path'),
+        )
+
+    def test_implied_code(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '^/user/.*$', '/pike/user/',
+        )
+        self.assertEqual(
+            '301',
+            rule.code,
+        )
+
+    def test_str(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/user/.*$', '/pike/user/',
+        )
+        self.assertEqual(
+            '[1] redirectmatch 301 ^/user/.*$ /pike/user/',
+            str(rule),
+        )
+
+    def test_too_few_args(self):
+        self.assertRaises(
+            ValueError,
+            rules.RedirectMatch,
+            (1, 'redirectmatch', '/the/path'),
+        )
+
+    def test_too_many_args(self):
+        self.assertRaises(
+            ValueError,
+            rules.RedirectMatch,
+            (1, 'redirectmatch', '301', '/the/path', '/new/path',
+             'extra-value'),
         )

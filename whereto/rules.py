@@ -15,6 +15,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import re
+
 
 class Rule(object):
     "Base class for rules."
@@ -52,4 +54,19 @@ class Redirect(Rule):
     def match(self, path):
         if path == self.pattern:
             return (self.code, self.target)
+        return None
+
+
+class RedirectMatch(Rule):
+    "A RedirectMatch rule with a regular expression."
+
+    def __init__(self, linenum, *params):
+        super(RedirectMatch, self).__init__(linenum, *params)
+        self.regex = re.compile(self.pattern)
+        self.target_repl = self.target.replace('$', '\\')
+
+    def match(self, path):
+        m = self.regex.search(path)
+        if m:
+            return (self.code, self.regex.sub(self.target_repl, path))
         return None
