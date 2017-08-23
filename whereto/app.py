@@ -55,37 +55,41 @@ def process_tests(ruleset, tests):
     return (mismatches, untested)
 
 
+# This is constructed outside of the main() function to support
+# sphinxcontrib.autoprogram in the doc build.
+argument_parser = argparse.ArgumentParser()
+group = argument_parser.add_mutually_exclusive_group()
+group.add_argument(
+    '--ignore-untested',
+    action='store_false',
+    dest='error_untested',
+    default=True,
+    help='ignore untested rules',
+)
+group.add_argument(
+    '--error-untested',
+    action='store_true',
+    dest='error_untested',
+    help='error if there are untested rules',
+)
+argument_parser.add_argument(
+    '-q', '--quiet',
+    action='store_true',
+    default=False,
+    help='run quietly',
+)
+argument_parser.add_argument(
+    'htaccess_file',
+    help='file with rewrite rules',
+)
+argument_parser.add_argument(
+    'test_file',
+    help='file with test data',
+)
+
+
 def main():
-    arg_parser = argparse.ArgumentParser()
-    group = arg_parser.add_mutually_exclusive_group()
-    group.add_argument(
-        '--ignore-untested',
-        action='store_false',
-        dest='error_untested',
-        default=True,
-        help='ignore untested rules',
-    )
-    group.add_argument(
-        '--error-untested',
-        action='store_true',
-        dest='error_untested',
-        help='error if there are untested rules',
-    )
-    arg_parser.add_argument(
-        '-q', '--quiet',
-        action='store_true',
-        default=False,
-        help='run quietly',
-    )
-    arg_parser.add_argument(
-        'htaccess_file',
-        help='file with rewrite rules',
-    )
-    arg_parser.add_argument(
-        'test_file',
-        help='file with test data',
-    )
-    args = arg_parser.parse_args()
+    args = argument_parser.parse_args()
 
     ruleset = rules.RuleSet()
     with io.open(args.htaccess_file, 'r', encoding='utf-8') as f:

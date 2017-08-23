@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'openstackdocstheme',
+    'sphinxcontrib.autoprogram',
     #'sphinx.ext.intersphinx',
 ]
 
@@ -39,11 +39,6 @@ master_doc = 'index'
 # General information about the project.
 project = u'whereto'
 copyright = u'2017, OpenStack Developers'
-
-# openstackdocstheme options
-repository_name = 'openstack/whereto'
-bug_project = 'whereto'
-bug_tag = ''
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -62,7 +57,7 @@ pygments_style = 'sphinx'
 # html_theme_path = ["."]
 # html_theme = '_theme'
 # html_static_path = ['static']
-html_theme = 'openstackdocs'
+html_theme = 'nature'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project

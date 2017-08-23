@@ -2,4 +2,5 @@
 Command line interface reference
 ================================
 
-CLI reference of whereto.
+.. autoprogram:: whereto.app:argument_parser
+   :prog: whereto

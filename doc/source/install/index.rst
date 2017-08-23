@@ -1,17 +1,9 @@
-==================================
-whereto service installation guide
-==================================
+============================
+ whereto installation guide
+============================
 
-.. toctree::
-   :maxdepth: 2
+The whereto package should be installed via ``pip``:
 
-   get_started.rst
-   install.rst
-   verify.rst
-   next-steps.rst
+.. code-block:: console
 
-The whereto service (whereto) provides...
-
-This chapter assumes a working setup of OpenStack following the
-`OpenStack Installation Tutorial
-<https://docs.openstack.org/project-install-guide/ocata/>`_.
+   $ pip install whereto
