@@ -174,8 +174,8 @@ class TestRuleSet(base.TestCase):
             'redirect', '301', '/path', '/new/path',
         )
         self.assertEqual(
-            [(1, '301', '/new/path')],
-            list(self.ruleset.match('/path')),
+            (1, '301', '/new/path'),
+            self.ruleset.match('/path'),
         )
 
     def test_match_multiple(self):
@@ -188,7 +188,6 @@ class TestRuleSet(base.TestCase):
             'redirect', '301', '/path', '/other/path',
         )
         self.assertEqual(
-            [(1, '301', '/new/path'),
-             (2, '301', '/other/path')],
-            list(self.ruleset.match('/path')),
+            (1, '301', '/new/path'),
+            self.ruleset.match('/path'),
         )

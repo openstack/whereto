@@ -102,6 +102,11 @@ class RuleSet(object):
 
     def match(self, path):
         for rule in self:
-            m = rule.match(path)
-            if m is not None:
-                yield (rule.linenum,) + m
+            try:
+                m = rule.match(path)
+            except Exception as e:
+                print('Failed to evaluate {} against {}: {}'.format(
+                    rule, path, e))
+            else:
+                if m is not None:
+                    return (rule.linenum,) + m

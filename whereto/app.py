@@ -31,9 +31,8 @@ def process_tests(ruleset, tests):
     inputs that did not match the expected value, and a set containing
     the line numbers of the rules that never matched an input test.
 
-    The first element of the mismatched tuples is the test tuple
-    (line, input, expected), and the second element is the list of any
-    rules that did match the input pattern.
+    The mismatched tuples contain the test values (line, input,
+    expected).
 
     :param ruleset: The redirect rules.
     :type ruleset: RuleSet
@@ -41,15 +40,25 @@ def process_tests(ruleset, tests):
     """
     used = set()
     mismatches = []
-    for linenum, input, code, expected in tests:
-        matches = list(ruleset.match(input))
-        if len(matches) == 1:
-            match = matches[0]
+    for test in tests:
+        try:
+            linenum, input, code, expected = test
+        except ValueError as e:
+            linenum = test[0]
+            if len(test) != 4:
+                raise ValueError(
+                    'Wrong number of arguments in test on line {}: {}'.format(
+                        linenum, ' '.join(test[1:]))
+                )
+            raise RuntimeError('Unable to process test {}: {}'.format(
+                test, e))
+        match = ruleset.match(input)
+        if match is not None:
             if (code, expected) == match[1:]:
                 used.add(match[0])
                 continue
         mismatches.append(
-            ((linenum, input, code, expected), matches)
+            (linenum, input, code, expected)
         )
     untested = set(ruleset.all_ids) - used
     return (mismatches, untested)
@@ -104,18 +113,11 @@ def main():
 
     failures = 0
     mismatches, untested = process_tests(ruleset, tests)
-    for test, matches in mismatches:
+    for test in mismatches:
         failures += 1
-        if not matches:
-            print('No rule matched test on line {}: {}'.format(
-                test[0], ' '.join(test[1:]))
-            )
-        else:
-            print('Test on line {} did not produce expected result: {}'.format(
-                test[0], ' '.join(test[1:]))
-            )
-            for match in matches:
-                print('  {}'.format(ruleset[match[0]]))
+        print('No rule matched test on line {}: {}'.format(
+            test[0], ' '.join(test[1:]))
+        )
 
     if untested:
         if not args.quiet:

@@ -45,9 +45,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/path', '301', '/new/path')],
         )
         expected = (
-            [((1, '/path', '301', '/new/path'),
-              [(1, '301', '/new/path'),
-               (2, '301', '/duplicate/redirect')])],
-            {1, 2},
+            [],
+            {2},
         )
         self.assertEqual(expected, actual)
