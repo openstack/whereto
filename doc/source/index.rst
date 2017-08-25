@@ -21,6 +21,7 @@ jobs.
    contributor/index
    cli/index
    user/index
+   history
 
 Indices and tables
 ==================
