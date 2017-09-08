@@ -50,7 +50,7 @@ def _find_matches(ruleset, test):
     return matches
 
 
-def process_tests(ruleset, tests):
+def process_tests(ruleset, tests, max_hops):
     """Run the tests against the ruleset and return the results.
 
     The return value is a tuple containing a list of tuples with the
@@ -69,6 +69,7 @@ def process_tests(ruleset, tests):
     used = set()
     mismatches = []
     cycles = []
+    too_many_hops = []
     for test in tests:
         matches = _find_matches(ruleset, test)
         if not matches:
@@ -85,10 +86,12 @@ def process_tests(ruleset, tests):
             # properly.
             if matches[0] == matches[-1]:
                 cycles.append((test, matches))
+            elif max_hops and len(matches) > max_hops:
+                too_many_hops.append((test, matches))
             else:
                 used.add(matches[0][0])
     untested = set(ruleset.all_ids) - used
-    return (mismatches, cycles, untested)
+    return (mismatches, cycles, too_many_hops, untested)
 
 
 # This is constructed outside of the main() function to support
@@ -107,6 +110,12 @@ group.add_argument(
     action='store_true',
     dest='error_untested',
     help='error if there are untested rules',
+)
+argument_parser.add_argument(
+    '-m', '--max-hops',
+    type=int,
+    default=0,
+    help='how many hops are allowed',
 )
 argument_parser.add_argument(
     '-q', '--quiet',
@@ -139,7 +148,9 @@ def main():
         ]
 
     failures = 0
-    mismatches, cycles, untested = process_tests(ruleset, tests)
+    mismatches, cycles, too_many_hops, untested = process_tests(
+        ruleset, tests, args.max_hops)
+
     for test in mismatches:
         failures += 1
         print('No rule matched test on line {}: {}'.format(
@@ -149,6 +160,16 @@ def main():
     for test, matches in cycles:
         failures += 1
         print('Cycle found from rule on line {}: {}'.format(
+            test[0], ' '.join(test[1:]))
+        )
+        path = test[1]
+        for linenum, code, new_path in matches:
+            print('  {} -> {} ({})'.format(
+                path, new_path, code))
+
+    for test, matches in too_many_hops:
+        failures += 1
+        print('Excessive redirects found from rule on line {}: {}'.format(
             test[0], ' '.join(test[1:]))
         )
         path = test[1]

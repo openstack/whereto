@@ -31,9 +31,11 @@ class TestProcessTests(base.TestCase):
         actual = app.process_tests(
             self.ruleset,
             [(1, '/alternate/path', '301', '/new/path')],
+            0,
         )
         expected = (
             [(1, '/alternate/path', '301', '/new/path')],
+            [],
             [],
             {1},
         )
@@ -43,8 +45,9 @@ class TestProcessTests(base.TestCase):
         actual = app.process_tests(
             self.ruleset,
             [(1, '/path', '301', '/new/path')],
+            0,
         )
-        expected = ([], [], set())
+        expected = ([], [], [], set())
         self.assertEqual(expected, actual)
 
     def test_two_matches(self):
@@ -55,8 +58,10 @@ class TestProcessTests(base.TestCase):
         actual = app.process_tests(
             self.ruleset,
             [(1, '/path', '301', '/new/path')],
+            0,
         )
         expected = (
+            [],
             [],
             [],
             {2},
@@ -71,6 +76,7 @@ class TestProcessTests(base.TestCase):
         actual = app.process_tests(
             self.ruleset,
             [(1, '/path', '301', '/new/path')],
+            0,
         )
         expected = (
             [],
@@ -78,6 +84,32 @@ class TestProcessTests(base.TestCase):
               [(1, '301', '/new/path'),
                (2, '301', '/path'),
                (1, '301', '/new/path')])],
+            [],
             {1, 2},
+        )
+        self.assertEqual(expected, actual)
+
+    def test_max_hops(self):
+        self.ruleset.add(
+            2,
+            'redirect', '301', '/new/path', '/second/path',
+        )
+        self.ruleset.add(
+            3,
+            'redirect', '301', '/second/path', '/third/path',
+        )
+        actual = app.process_tests(
+            self.ruleset,
+            [(1, '/path', '301', '/new/path')],
+            1,
+        )
+        expected = (
+            [],
+            [],
+            [((1, '/path', '301', '/new/path'),
+              [(1, '301', '/new/path'),
+               (2, '301', '/second/path'),
+               (3, '301', '/third/path')])],
+            {1, 2, 3},
         )
         self.assertEqual(expected, actual)
