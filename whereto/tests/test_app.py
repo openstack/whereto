@@ -27,6 +27,17 @@ class TestProcessTests(base.TestCase):
             'redirect', '301', '/path', '/new/path',
         )
 
+    def test_zero_matches(self):
+        actual = app.process_tests(
+            self.ruleset,
+            [(1, '/alternate/path', '301', '/new/path')],
+        )
+        expected = (
+            [(1, '/alternate/path', '301', '/new/path')],
+            {1},
+        )
+        self.assertEqual(expected, actual)
+
     def test_one_match(self):
         actual = app.process_tests(
             self.ruleset,
