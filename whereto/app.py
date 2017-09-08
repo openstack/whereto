@@ -24,12 +24,40 @@ from whereto import parser
 from whereto import rules
 
 
+def _find_matches(ruleset, test):
+    try:
+        linenum, input, code, expected = test
+    except ValueError as e:
+        linenum = test[0]
+        if len(test) != 4:
+            raise ValueError(
+                'Wrong number of arguments in test on line {}: {}'.format(
+                    linenum, ' '.join(test[1:]))
+            )
+        raise RuntimeError('Unable to process test {}: {}'.format(
+            test, e))
+    seen = set()
+    matches = []
+    match = ruleset.match(input)
+    while match is not None and len(matches) < 5:
+        matches.append(match)
+        if match[0] in seen:
+            # cycle, stop
+            break
+        seen.add(match[0])
+        # Look again in case we have multiple matches and a cycle.
+        match = ruleset.match(match[-1])
+    return matches
+
+
 def process_tests(ruleset, tests):
     """Run the tests against the ruleset and return the results.
 
     The return value is a tuple containing a list of tuples with the
-    inputs that did not match the expected value, and a set containing
-    the line numbers of the rules that never matched an input test.
+    inputs that did not match the expected value, a list of tuples
+    with inputs and rules the result in redirect cycles, and a set
+    containing the line numbers of the rules that never matched an
+    input test.
 
     The mismatched tuples contain the test values (line, input,
     expected).
@@ -40,28 +68,27 @@ def process_tests(ruleset, tests):
     """
     used = set()
     mismatches = []
+    cycles = []
     for test in tests:
-        try:
-            linenum, input, code, expected = test
-        except ValueError as e:
-            linenum = test[0]
-            if len(test) != 4:
-                raise ValueError(
-                    'Wrong number of arguments in test on line {}: {}'.format(
-                        linenum, ' '.join(test[1:]))
-                )
-            raise RuntimeError('Unable to process test {}: {}'.format(
-                test, e))
-        match = ruleset.match(input)
-        if match is not None:
-            if (code, expected) == match[1:]:
-                used.add(match[0])
+        matches = _find_matches(ruleset, test)
+        if not matches:
+            mismatches.append(test)
+        elif len(matches) == 1:
+            code, expected = test[-2:]
+            if (code, expected) == matches[0][1:]:
+                used.add(matches[0][0])
                 continue
-        mismatches.append(
-            (linenum, input, code, expected)
-        )
+        else:
+            # We only have a cycle if the first and last rule
+            # match. Otherwise it's a multi-step redirect, which is OK
+            # and we can just recognize that the first rule was tested
+            # properly.
+            if matches[0] == matches[-1]:
+                cycles.append((test, matches))
+            else:
+                used.add(matches[0][0])
     untested = set(ruleset.all_ids) - used
-    return (mismatches, untested)
+    return (mismatches, cycles, untested)
 
 
 # This is constructed outside of the main() function to support
@@ -112,12 +139,22 @@ def main():
         ]
 
     failures = 0
-    mismatches, untested = process_tests(ruleset, tests)
+    mismatches, cycles, untested = process_tests(ruleset, tests)
     for test in mismatches:
         failures += 1
         print('No rule matched test on line {}: {}'.format(
             test[0], ' '.join(test[1:]))
         )
+
+    for test, matches in cycles:
+        failures += 1
+        print('Cycle found from rule on line {}: {}'.format(
+            test[0], ' '.join(test[1:]))
+        )
+        path = test[1]
+        for linenum, code, new_path in matches:
+            print('  {} -> {} ({})'.format(
+                path, new_path, code))
 
     if untested:
         if not args.quiet:
