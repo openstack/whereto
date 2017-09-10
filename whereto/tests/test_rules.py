@@ -66,6 +66,23 @@ class TestRedirect(base.TestCase):
             (1, 'redirect', '301', '/the/path', '/new/path', 'extra-value'),
         )
 
+    def test_410(self):
+        rule = rules.Redirect(
+            1,
+            'redirect', '410', '/the/path',
+        )
+        self.assertEqual(
+            '410',
+            rule.code,
+        )
+        self.assertIsNone(
+            rule.target,
+        )
+        self.assertEqual(
+            ('410', None),
+            rule.match('/the/path'),
+        )
+
 
 class TestRedirectMatch(base.TestCase):
 
@@ -131,6 +148,23 @@ class TestRedirectMatch(base.TestCase):
             rules.RedirectMatch,
             (1, 'redirectmatch', '301', '/the/path', '/new/path',
              'extra-value'),
+        )
+
+    def test_410(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirect', '410', '/the/path',
+        )
+        self.assertEqual(
+            '410',
+            rule.code,
+        )
+        self.assertIsNone(
+            rule.target,
+        )
+        self.assertEqual(
+            ('410', None),
+            rule.match('/the/path'),
         )
 
 

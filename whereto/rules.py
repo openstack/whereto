@@ -30,11 +30,17 @@ class Rule(object):
             self.pattern = params[2]
             self.target = params[3]
         elif len(params) == 3:
-            # redirect pattern target
-            # (code is implied)
-            self.code = '301'
-            self.pattern = params[1]
-            self.target = params[2]
+            if params[1] == '410':
+                # The page has been deleted and is not coming back.
+                self.code = params[1]
+                self.pattern = params[2]
+                self.target = None
+            else:
+                # redirect pattern target
+                # (code is implied)
+                self.code = '301'
+                self.pattern = params[1]
+                self.target = params[2]
         else:
             raise ValueError('Could not understand rule {}'.format(params))
 
@@ -63,12 +69,19 @@ class RedirectMatch(Rule):
     def __init__(self, linenum, *params):
         super(RedirectMatch, self).__init__(linenum, *params)
         self.regex = re.compile(self.pattern)
-        self.target_repl = self.target.replace('$', '\\')
+        if self.target:
+            self.target_repl = self.target.replace('$', '\\')
+        else:
+            self.target_repl = None
 
     def match(self, path):
         m = self.regex.search(path)
         if m:
-            return (self.code, self.regex.sub(self.target_repl, path))
+            if self.target_repl:
+                return (self.code, self.regex.sub(self.target_repl, path))
+            else:
+                # A rule that doesn't have a response target, like 410.
+                return (self.code, self.target_repl)
         return None
 
 
