@@ -133,14 +133,23 @@ argument_parser.add_argument(
 )
 
 
+def report(msg):
+    print('whereto: {}'.format(msg))
+
+
 def main():
     args = argument_parser.parse_args()
 
     ruleset = rules.RuleSet()
+
+    if not args.quiet:
+        print('whereto: reading redirects from {}'.format(args.htaccess_file))
     with io.open(args.htaccess_file, 'r', encoding='utf-8') as f:
         for linenum, params in parser.parse_rules(f):
             ruleset.add(linenum, *params)
 
+    if not args.quiet:
+        print('whereto: reading tests from {}'.format(args.htaccess_file))
     with io.open(args.test_file, 'r', encoding='utf-8') as f:
         tests = [
             (linenum,) + tuple(params)
@@ -153,13 +162,13 @@ def main():
 
     for test in mismatches:
         failures += 1
-        print('No rule matched test on line {}: {}'.format(
+        report('No rule matched test on line {}: {}'.format(
             test[0], ' '.join(test[1:]))
         )
 
     for test, matches in cycles:
         failures += 1
-        print('Cycle found from rule on line {}: {}'.format(
+        report('Cycle found from rule on line {}: {}'.format(
             test[0], ' '.join(test[1:]))
         )
         path = test[1]
@@ -169,8 +178,9 @@ def main():
 
     for test, matches in too_many_hops:
         failures += 1
-        print('Excessive redirects found from rule on line {}: {}'.format(
-            test[0], ' '.join(test[1:]))
+        report(
+            'Excessive redirects found from rule on line {}: {}'.format(
+                test[0], ' '.join(test[1:]))
         )
         path = test[1]
         for linenum, code, new_path in matches:
@@ -182,11 +192,11 @@ def main():
             print('')
         for linenum in sorted(untested):
             if not args.quiet:
-                print('Untested rule: {}'.format(ruleset[linenum]))
+                report('Untested rule: {}'.format(ruleset[linenum]))
             if args.error_untested:
                 failures += 1
 
     if failures:
-        print('\n{} failures'.format(failures))
+        report('\n{} failures'.format(failures))
         return 1
     return 0
