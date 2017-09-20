@@ -68,6 +68,25 @@ class TestProcessTests(base.TestCase):
         )
         self.assertEqual(expected, actual)
 
+    def test_mismatch(self):
+        ruleset = rules.RuleSet()
+        ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path/',
+        )
+        actual = app.process_tests(
+            ruleset,
+            [(1, '/path', '301', '/new/path')],
+            0,
+        )
+        expected = (
+            [(1, '/path', '301', '/new/path')],
+            [],
+            [],
+            {1},
+        )
+        self.assertEqual(expected, actual)
+
     def test_cycle(self):
         self.ruleset.add(
             2,

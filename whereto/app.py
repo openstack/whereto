@@ -73,23 +73,30 @@ def process_tests(ruleset, tests, max_hops):
     for test in tests:
         matches = _find_matches(ruleset, test)
         if not matches:
+            # No rules matched at all.
             mismatches.append(test)
-        elif len(matches) == 1:
-            code, expected = test[-2:]
-            if (code, expected) == matches[0][1:]:
-                used.add(matches[0][0])
-                continue
         else:
-            # We only have a cycle if the first and last rule
-            # match. Otherwise it's a multi-step redirect, which is OK
-            # and we can just recognize that the first rule was tested
-            # properly.
-            if matches[0] == matches[-1]:
-                cycles.append((test, matches))
-            elif max_hops and len(matches) > max_hops:
-                too_many_hops.append((test, matches))
-            else:
+            code, expected = test[-2:]
+            if (code, expected) != matches[0][1:]:
+                # At least one rule matched, but the first rule to
+                # match gave us an unexpected result to count it as a
+                # failure.
+                mismatches.append(test)
+            elif len(matches) == 1:
+                # One rule matched and it matched as expected, so mark
+                # it as used and go on to the next test.
                 used.add(matches[0][0])
+            else:
+                # Multiple rules matched. We only have a cycle if the
+                # first and last rule are the same. Otherwise it's a
+                # multi-step redirect, which is OK and we can just
+                # recognize that the first rule was tested properly.
+                if matches[0] == matches[-1]:
+                    cycles.append((test, matches))
+                elif max_hops and len(matches) > max_hops:
+                    too_many_hops.append((test, matches))
+                else:
+                    used.add(matches[0][0])
     untested = set(ruleset.all_ids) - used
     return (mismatches, cycles, too_many_hops, untested)
 
