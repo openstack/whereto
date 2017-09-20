@@ -146,13 +146,13 @@ def report(msg):
 
 def show_test_and_matches(msg, test, matches):
     report(
-        '{} on line {}: {}'.format(
-            msg, test[0], ' '.join(test[1:]))
+        '{} on line {}: {} should produce {} {}'.format(
+            msg, test[0], test[1], test[2], test[3])
     )
     path = test[1]
     for linenum, code, new_path in matches:
-        print('whereto:   {} -> {} ({})'.format(
-            path, new_path, code))
+        print('whereto:   {} -> {} {} [line {}]'.format(
+            path, code, new_path, linenum))
 
 
 def main():
