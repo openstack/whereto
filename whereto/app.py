@@ -204,6 +204,6 @@ def main():
                 failures += 1
 
     if failures:
-        report('\n{} failures'.format(failures))
+        report('{} failures'.format(failures))
         return 1
     return 0
