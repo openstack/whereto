@@ -74,14 +74,14 @@ def process_tests(ruleset, tests, max_hops):
         matches = _find_matches(ruleset, test)
         if not matches:
             # No rules matched at all.
-            mismatches.append(test)
+            mismatches.append((test, []))
         else:
             code, expected = test[-2:]
             if (code, expected) != matches[0][1:]:
                 # At least one rule matched, but the first rule to
                 # match gave us an unexpected result to count it as a
                 # failure.
-                mismatches.append(test)
+                mismatches.append((test, matches))
             elif len(matches) == 1:
                 # One rule matched and it matched as expected, so mark
                 # it as used and go on to the next test.
@@ -144,6 +144,17 @@ def report(msg):
     print('whereto: {}'.format(msg))
 
 
+def show_test_and_matches(msg, test, matches):
+    report(
+        '{} on line {}: {}'.format(
+            msg, test[0], ' '.join(test[1:]))
+    )
+    path = test[1]
+    for linenum, code, new_path in matches:
+        print('whereto:   {} -> {} ({})'.format(
+            path, new_path, code))
+
+
 def main():
     args = argument_parser.parse_args()
 
@@ -167,32 +178,36 @@ def main():
     mismatches, cycles, too_many_hops, untested = process_tests(
         ruleset, tests, args.max_hops)
 
-    for test in mismatches:
+    for test, matches in mismatches:
         failures += 1
-        report('No rule matched test on line {}: {}'.format(
-            test[0], ' '.join(test[1:]))
-        )
+        if matches:
+            show_test_and_matches(
+                'Unexpected rule matched test',
+                test,
+                matches,
+            )
+        else:
+            show_test_and_matches(
+                'No rule matched test',
+                test,
+                [],
+            )
 
     for test, matches in cycles:
         failures += 1
-        report('Cycle found from rule on line {}: {}'.format(
-            test[0], ' '.join(test[1:]))
+        show_test_and_matches(
+            'Cycle found from rule',
+            test,
+            matches,
         )
-        path = test[1]
-        for linenum, code, new_path in matches:
-            print('  {} -> {} ({})'.format(
-                path, new_path, code))
 
     for test, matches in too_many_hops:
         failures += 1
-        report(
-            'Excessive redirects found from rule on line {}: {}'.format(
-                test[0], ' '.join(test[1:]))
+        show_test_and_matches(
+            'Excessive redirects found from rule',
+            test,
+            matches,
         )
-        path = test[1]
-        for linenum, code, new_path in matches:
-            print('  {} -> {} ({})'.format(
-                path, new_path, code))
 
     if untested:
         if not args.quiet:

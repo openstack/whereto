@@ -34,7 +34,7 @@ class TestProcessTests(base.TestCase):
             0,
         )
         expected = (
-            [(1, '/alternate/path', '301', '/new/path')],
+            [((1, '/alternate/path', '301', '/new/path'), [])],
             [],
             [],
             {1},
@@ -80,7 +80,7 @@ class TestProcessTests(base.TestCase):
             0,
         )
         expected = (
-            [(1, '/path', '301', '/new/path')],
+            [((1, '/path', '301', '/new/path'), [(1, '301', '/new/path/')])],
             [],
             [],
             {1},
