@@ -15,7 +15,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
 import re
+
+
+LOG = logging.getLogger()
 
 
 class Rule(object):
@@ -118,8 +122,11 @@ class RuleSet(object):
             try:
                 m = rule.match(path)
             except Exception as e:
-                print('Failed to evaluate {} against {}: {}'.format(
+                LOG.warning('Failed to evaluate {} against {}: {}'.format(
                     rule, path, e))
             else:
                 if m is not None:
+                    LOG.debug(
+                        'Matched "{}" for path "{}" producing {}'.format(
+                            rule, path, m))
                     return (rule.linenum,) + m

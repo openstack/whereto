@@ -19,6 +19,8 @@ from __future__ import print_function
 
 import argparse
 import io
+import logging
+import sys
 
 from whereto import parser
 from whereto import rules
@@ -125,9 +127,18 @@ argument_parser.add_argument(
     help='how many hops are allowed',
 )
 argument_parser.add_argument(
+    '-v', '--verbose',
+    dest='verbosity',
+    default=[1],
+    action='append_const',
+    const=1,
+    help='increase the verbosity by one level',
+)
+argument_parser.add_argument(
     '-q', '--quiet',
-    action='store_true',
-    default=False,
+    action='store_const',
+    dest='verbosity',
+    const=[],
     help='run quietly',
 )
 argument_parser.add_argument(
@@ -140,34 +151,43 @@ argument_parser.add_argument(
 )
 
 
-def report(msg):
-    print('whereto: {}'.format(msg))
-
-
 def show_test_and_matches(msg, test, matches):
-    report(
+    logging.error(
         '{} on line {}: {} should produce {} {}'.format(
             msg, test[0], test[1], test[2], test[3])
     )
     path = test[1]
     for linenum, code, new_path in matches:
-        print('whereto:   {} -> {} {} [line {}]'.format(
+        logging.error('   {} -> {} {} [line {}]'.format(
             path, code, new_path, linenum))
 
 
 def main():
     args = argument_parser.parse_args()
 
+    verbosity = sum(args.verbosity)
+    if verbosity < 1:
+        log_level = logging.WARNING
+    elif verbosity == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.DEBUG
+
+    logging.basicConfig(
+        level=log_level,
+        format='whereto %(levelname)s: %(message)s',
+        stream=sys.stdout,
+    )
+    log = logging.getLogger()
+
     ruleset = rules.RuleSet()
 
-    if not args.quiet:
-        print('whereto: reading redirects from {}'.format(args.htaccess_file))
+    log.debug('reading redirects from {}'.format(args.htaccess_file))
     with io.open(args.htaccess_file, 'r', encoding='utf-8') as f:
         for linenum, params in parser.parse_rules(f):
             ruleset.add(linenum, *params)
 
-    if not args.quiet:
-        print('whereto: reading tests from {}'.format(args.htaccess_file))
+    log.debug('reading tests from {}'.format(args.htaccess_file))
     with io.open(args.test_file, 'r', encoding='utf-8') as f:
         tests = [
             (linenum,) + tuple(params)
@@ -210,15 +230,14 @@ def main():
         )
 
     if untested:
-        if not args.quiet:
-            print('')
+        log.debug('')
         for linenum in sorted(untested):
             if not args.quiet:
-                report('Untested rule: {}'.format(ruleset[linenum]))
+                logging.error('Untested rule: {}'.format(ruleset[linenum]))
             if args.error_untested:
                 failures += 1
 
     if failures:
-        report('{} failures'.format(failures))
+        logging.error('{} failures'.format(failures))
         return 1
     return 0
