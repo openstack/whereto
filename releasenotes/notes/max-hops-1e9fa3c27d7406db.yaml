@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add detection of multiple redirection hops. If a path redirects to
+    another path that also redirects, repeatedly for too many steps,
+    report an error.

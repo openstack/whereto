@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for redirect responses that indicate that a path is not
+    going to be valid again in the future and return a 410 response.

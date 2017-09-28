@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add detection of redirection cycles or loops. If a path redirects
+    back to itself when all of the rules are evaluated, report it as
+    an error.
