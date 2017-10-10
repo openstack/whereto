@@ -232,7 +232,7 @@ def main():
     if untested:
         log.debug('')
         for linenum in sorted(untested):
-            if not args.quiet:
+            if verbosity:
                 logging.error('Untested rule: {}'.format(ruleset[linenum]))
             if args.error_untested:
                 failures += 1
