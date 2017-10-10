@@ -51,7 +51,7 @@ class Rule(object):
     def __str__(self):
         return '[{}] {}'.format(
             self.linenum,
-            ' '.join(self._params),
+            ' '.join(p for p in self._params if p),
         )
 
     def match(self, path):

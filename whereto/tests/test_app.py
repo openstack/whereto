@@ -22,12 +22,12 @@ class TestProcessTests(base.TestCase):
     def setUp(self):
         super(TestProcessTests, self).setUp()
         self.ruleset = rules.RuleSet()
+
+    def test_zero_matches(self):
         self.ruleset.add(
             1,
             'redirect', '301', '/path', '/new/path',
         )
-
-    def test_zero_matches(self):
         actual = app.process_tests(
             self.ruleset,
             [(1, '/alternate/path', '301', '/new/path')],
@@ -42,6 +42,10 @@ class TestProcessTests(base.TestCase):
         self.assertEqual(expected, actual)
 
     def test_one_match(self):
+        self.ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path',
+        )
         actual = app.process_tests(
             self.ruleset,
             [(1, '/path', '301', '/new/path')],
@@ -50,7 +54,37 @@ class TestProcessTests(base.TestCase):
         expected = ([], [], [], set())
         self.assertEqual(expected, actual)
 
+    def test_one_match_regex(self):
+        self.ruleset.add(
+            1,
+            'redirectmatch', '301', '^/regex/path(.*)$', '/new/regex/path$1',
+        )
+        actual = app.process_tests(
+            self.ruleset,
+            [(1, '/regex/path', '301', '/new/regex/path')],
+            0,
+        )
+        expected = ([], [], [], set())
+        self.assertEqual(expected, actual)
+
+    def test_one_match_410(self):
+        self.ruleset.add(
+            1,
+            'redirect', '410', '/gone/path', None,
+        )
+        actual = app.process_tests(
+            self.ruleset,
+            [(1, '/gone/path', '410', None)],
+            0,
+        )
+        expected = ([], [], [], set())
+        self.assertEqual(expected, actual)
+
     def test_two_matches(self):
+        self.ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path',
+        )
         self.ruleset.add(
             2,
             'redirect', '301', '/path', '/duplicate/redirect',
@@ -69,13 +103,12 @@ class TestProcessTests(base.TestCase):
         self.assertEqual(expected, actual)
 
     def test_mismatch(self):
-        ruleset = rules.RuleSet()
-        ruleset.add(
+        self.ruleset.add(
             1,
             'redirect', '301', '/path', '/new/path/',
         )
         actual = app.process_tests(
-            ruleset,
+            self.ruleset,
             [(1, '/path', '301', '/new/path')],
             0,
         )
@@ -88,6 +121,10 @@ class TestProcessTests(base.TestCase):
         self.assertEqual(expected, actual)
 
     def test_cycle(self):
+        self.ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path',
+        )
         self.ruleset.add(
             2,
             'redirect', '301', '/new/path', '/path',
@@ -109,6 +146,10 @@ class TestProcessTests(base.TestCase):
         self.assertEqual(expected, actual)
 
     def test_max_hops(self):
+        self.ruleset.add(
+            1,
+            'redirect', '301', '/path', '/new/path',
+        )
         self.ruleset.add(
             2,
             'redirect', '301', '/new/path', '/second/path',

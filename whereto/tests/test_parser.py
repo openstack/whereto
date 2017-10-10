@@ -61,3 +61,56 @@ class TestParseRules(base.TestCase):
                   'http://releases.openstack.org$1'])],
             self.parse(input),
         )
+
+
+class TestParseTests(base.TestCase):
+
+    def parse(self, text):
+        input = io.StringIO(textwrap.dedent(text))
+        return list(parser.parse_tests(input))
+
+    def test_skip_comments(self):
+        input = u"""
+        #
+        """
+        self.assertEqual(
+            [],
+            self.parse(input),
+        )
+
+    def test_skip_blank_lines(self):
+        input = u"""
+
+        """
+        self.assertEqual(
+            [],
+            self.parse(input),
+        )
+
+    def test_no_quotes(self):
+        input = u"""
+        /path 301 /new/path
+        """
+        self.assertEqual(
+            [(2, ['/path', '301', '/new/path'])],
+            self.parse(input),
+        )
+
+    def test_strip_quotes(self):
+        input = u"""
+        /releases/foo 301 http://releases.openstack.org/foo
+        """
+        self.assertEqual(
+            [(2, ['/releases/foo', '301',
+                  'http://releases.openstack.org/foo'])],
+            self.parse(input),
+        )
+
+    def test_410_rule(self):
+        input = u"""
+        /releases 410
+        """
+        self.assertEqual(
+            [(2, ['/releases', '410', None])],
+            self.parse(input),
+        )

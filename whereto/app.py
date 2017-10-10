@@ -47,6 +47,9 @@ def _find_matches(ruleset, test):
             # cycle, stop
             break
         seen.add(match[0])
+        if match[-1] is None:
+            # a redirect that doesn't point to a path, like a 410
+            break
         # Look again in case we have multiple matches and a cycle.
         match = ruleset.match(match[-1])
     return matches
@@ -154,7 +157,7 @@ argument_parser.add_argument(
 def show_test_and_matches(msg, test, matches):
     logging.error(
         '{} on line {}: {} should produce {} {}'.format(
-            msg, test[0], test[1], test[2], test[3])
+            msg, test[0], test[1], test[2], test[3] or '')
     )
     path = test[1]
     for linenum, code, new_path in matches:
@@ -191,7 +194,7 @@ def main():
     with io.open(args.test_file, 'r', encoding='utf-8') as f:
         tests = [
             (linenum,) + tuple(params)
-            for linenum, params in parser.parse_rules(f)
+            for linenum, params in parser.parse_tests(f)
         ]
 
     failures = 0

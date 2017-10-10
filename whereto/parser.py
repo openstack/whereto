@@ -37,3 +37,23 @@ def parse_rules(fd):
         if line.startswith('#'):
             continue
         yield (num, shlex.split(line))
+
+
+def parse_tests(fd):
+    """Parse an open file containing tests for redirect rules.
+
+    Generates a sequence of tuples containing line numbers and the
+    parsed lines.
+
+    Blank lines and lines starting with # are skipped.
+
+    :param fd: Open file handle or other data source supporting
+               iteration over lines, producing unicode strings.
+    :type fd: io.BufferedReader
+    """
+    # A test line looks like a rule line except that it might not have
+    # the same number of parts.
+    for linenum, test in parse_rules(fd):
+        if len(test) < 3:
+            test = (test + [None, None, None])[:3]
+        yield (linenum, test)

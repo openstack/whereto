@@ -69,7 +69,7 @@ class TestRedirect(base.TestCase):
     def test_410(self):
         rule = rules.Redirect(
             1,
-            'redirect', '410', '/the/path',
+            'redirect', '410', '/the/path', None,
         )
         self.assertEqual(
             '410',
@@ -153,7 +153,7 @@ class TestRedirectMatch(base.TestCase):
     def test_410(self):
         rule = rules.RedirectMatch(
             1,
-            'redirect', '410', '/the/path',
+            'redirect', '410', '/the/path', None,
         )
         self.assertEqual(
             '410',
