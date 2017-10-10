@@ -22,9 +22,12 @@ The ``.htaccess`` file should contain ``Redirect`` and
    redirect 301 /install/ /pike/install/
    redirect 301 /basic-install/ /pike/install/
 
+   # this is gone and never coming back, indicate that to the end users
+   redirect 410 /nova/latest/man/nova-cert.html
+
 The test data file should include one test per line, including 3
 parts: the input path, the expected HTTP response code, and the
-expected output path. For example:
+(optional) expected output path. For example:
 
 .. code-block:: text
 
@@ -32,6 +35,7 @@ expected output path. For example:
    / 301 /pike
    /install/ 301 /pike/install/
    /no/rule 301 /should/fail
+   /nova/latest/man/nova-cert.html 410
 
 The output from ``whereto`` includes a report of any tests that do not
 match, including if no rules match and if multiple rules match. For
