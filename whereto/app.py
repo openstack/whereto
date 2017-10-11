@@ -78,8 +78,12 @@ def process_tests(ruleset, tests, max_hops):
     for test in tests:
         matches = _find_matches(ruleset, test)
         if not matches:
-            # No rules matched at all.
-            mismatches.append((test, []))
+            # No rules matched at all. If the test was expecting
+            # that don't record it as a failure.
+            if test[2] == '200':
+                used.add(test[0])
+            else:
+                mismatches.append((test, []))
         else:
             code, expected = test[-2:]
             if (code, expected) != matches[0][1:]:

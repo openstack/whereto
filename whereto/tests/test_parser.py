@@ -114,3 +114,12 @@ class TestParseTests(base.TestCase):
             [(2, ['/releases', '410', None])],
             self.parse(input),
         )
+
+    def test_200_rule(self):
+        input = u"""
+        /releases 200
+        """
+        self.assertEqual(
+            [(2, ['/releases', '200', None])],
+            self.parse(input),
+        )

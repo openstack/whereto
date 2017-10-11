@@ -37,6 +37,9 @@ parts: the input path, the expected HTTP response code, and the
    /no/rule 301 /should/fail
    /nova/latest/man/nova-cert.html 410
 
+   # verify that this path is not redirected
+   /pike/index.html 200
+
 The output from ``whereto`` includes a report of any tests that do not
 match, including if no rules match and if multiple rules match. For
 example:
