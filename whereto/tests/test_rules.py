@@ -96,6 +96,15 @@ class TestRedirectMatch(base.TestCase):
             rule.match('/user/'),
         )
 
+    def test_match_pcre_syntax(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/((?i)pike)/user/.*$', '/pike/user/',
+        )
+        self.assertIsNone(
+            rule.match('/Pike/USER/')
+        )
+
     def test_match_with_group(self):
         rule = rules.RedirectMatch(
             1,
@@ -103,6 +112,16 @@ class TestRedirectMatch(base.TestCase):
         )
         self.assertEqual(
             ('301', '/pike/user/foo'),
+            rule.match('/user/foo'),
+        )
+
+    def test_match_with_group_braces(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/{1}/$1',
+        )
+        self.assertEqual(
+            ('301', '/pike/user/{1}/foo'),
             rule.match('/user/foo'),
         )
 

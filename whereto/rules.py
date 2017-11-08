@@ -16,6 +16,7 @@
 # under the License.
 
 import logging
+import pcre
 import re
 
 
@@ -74,14 +75,15 @@ class RedirectMatch(Rule):
 
     def __init__(self, linenum, *params):
         super(RedirectMatch, self).__init__(linenum, *params)
-        self.regex = re.compile(self.pattern)
+        self.regex = pcre.compile(self.pattern)
         if self.target:
             self.target_repl = self._get_target_repl()
         else:
             self.target_repl = None
 
     def _get_target_repl(self):
-        return self._group_subst.sub(r'\\1', self.target).replace(r'\$', '$')
+        escaped = pcre.escape_template(self.target)
+        return self._group_subst.sub(r'{\1}', escaped).replace(r'\$', '$')
 
     def match(self, path):
         m = self.regex.search(path)

@@ -1,0 +1,4 @@
+---
+features:
+  - whereto now uses the PCRE library - the same regex library used by
+    mod_alias - for compiling regular expressions.
