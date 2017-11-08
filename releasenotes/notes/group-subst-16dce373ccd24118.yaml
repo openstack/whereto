@@ -1,0 +1,3 @@
+fixes:
+  - Literal '$' characters are now handled correctly when they appear in
+    substitution strings for RedirectMatch directives.
