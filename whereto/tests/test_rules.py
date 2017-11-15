@@ -106,6 +106,26 @@ class TestRedirectMatch(base.TestCase):
             rule.match('/user/foo'),
         )
 
+    def test_match_with_no_group_dollar(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/$a',
+        )
+        self.assertEqual(
+            ('301', '/pike/user/$a'),
+            rule.match('/user/foo'),
+        )
+
+    def test_match_with_group_escape(self):
+        rule = rules.RedirectMatch(
+            1,
+            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/\\$1',
+        )
+        self.assertEqual(
+            ('301', '/pike/user/$1'),
+            rule.match('/user/foo'),
+        )
+
     def test_no_match(self):
         rule = rules.RedirectMatch(
             1,

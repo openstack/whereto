@@ -70,13 +70,18 @@ class Redirect(Rule):
 class RedirectMatch(Rule):
     "A RedirectMatch rule with a regular expression."
 
+    _group_subst = re.compile(r'(?<!\\)\$([0-9])')
+
     def __init__(self, linenum, *params):
         super(RedirectMatch, self).__init__(linenum, *params)
         self.regex = re.compile(self.pattern)
         if self.target:
-            self.target_repl = self.target.replace('$', '\\')
+            self.target_repl = self._get_target_repl()
         else:
             self.target_repl = None
+
+    def _get_target_repl(self):
+        return self._group_subst.sub(r'\\1', self.target).replace(r'\$', '$')
 
     def match(self, path):
         m = self.regex.search(path)
