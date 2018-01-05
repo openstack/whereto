@@ -9,6 +9,6 @@ whereto is an app for testing redirect rules like what may appear in a
 jobs.
 
 * Free software: Apache license
-* Documentation: http://whereto.readthedocs.io/en/latest/
+* Documentation: https://docs.openstack.org/whereto/latest/
 * Source: http://git.openstack.org/cgit/openstack/whereto
 * Bugs: http://bugs.launchpad.net/whereto
