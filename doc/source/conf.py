@@ -63,8 +63,7 @@ html_theme = 'openstackdocs'
 
 # openstackdocstheme options
 repository_name = 'openstack/whereto'
-bug_project = 'whereto'
-bug_tag = ''
+use_storyboard = True
 
 html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
