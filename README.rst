@@ -10,5 +10,5 @@ jobs.
 
 * Free software: Apache license
 * Documentation: https://docs.openstack.org/whereto/latest/
-* Source: http://git.openstack.org/cgit/openstack/whereto
+* Source: http://opendev.org/openstack/whereto
 * Bugs: https://storyboard.openstack.org/#!/project/1037

@@ -11,7 +11,7 @@ whereto is an app for testing redirect rules like what may appear in a
 .htaccess file for Apache. It provides a way to test those rules in CI
 jobs.
 
-:Source: http://git.openstack.org/cgit/openstack/whereto
+:Source: http://opendev.org/openstack/whereto
 :Bugs: https://storyboard.openstack.org/#!/project/1037
 
 .. toctree::
