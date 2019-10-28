@@ -7,7 +7,7 @@ whereto is an app for testing redirect rules like what may appear in a
 jobs.
 
 :Source: https://opendev.org/openstack/whereto
-:Bugs: https://storyboard.openstack.org/#!/project/1037
+:Bugs: https://bugs.launchpad.net/openstack-doc-tools/
 
 .. toctree::
    :maxdepth: 2
