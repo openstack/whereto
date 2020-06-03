@@ -50,7 +50,7 @@ add_function_parentheses = True
 add_module_names = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # -- Options for HTML output --------------------------------------------------
 
@@ -62,11 +62,11 @@ pygments_style = 'sphinx'
 html_theme = 'openstackdocs'
 
 # openstackdocstheme options
-repository_name = 'openstack/whereto'
-bug_project = 'openstack-doc-tools'
-bug_tag = 'whereto'
+openstackdocs_repo_name = 'openstack/whereto'
+openstackdocs_auto_name = False
+openstackdocs_bug_project = 'openstack-doc-tools'
+openstackdocs_bug_tag = 'whereto'
 
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
