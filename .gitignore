@@ -1,8 +1,5 @@
 *.py[cod]
 
-# C extensions
-*.so
-
 # Packages
 *.egg*
 *.egg-info
@@ -18,29 +15,13 @@ develop-eggs
 lib
 lib64
 
-# Installer logs
-pip-log.txt
-
 # Unit test / coverage reports
 cover/
 .coverage*
 !.coveragerc
 .tox
-nosetests.xml
-.testrepository
+.stestr
 .venv
-
-# Translations
-*.mo
-
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
-
-# Complexity
-output/*.html
-output/*/index.html
 
 # Sphinx
 doc/build
@@ -48,11 +29,6 @@ doc/build
 # pbr generates these
 AUTHORS
 ChangeLog
-
-# Editors
-*~
-.*.swp
-.*sw?
 
 # Files created by releasenotes build
 releasenotes/build
