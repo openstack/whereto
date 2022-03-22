@@ -26,7 +26,7 @@ class TestParseRules(base.TestCase):
         return list(parser.parse_rules(input))
 
     def test_skip_comments(self):
-        input = u"""
+        input = """
         #
         """
         self.assertEqual(
@@ -35,7 +35,7 @@ class TestParseRules(base.TestCase):
         )
 
     def test_skip_blank_lines(self):
-        input = u"""
+        input = """
 
         """
         self.assertEqual(
@@ -44,7 +44,7 @@ class TestParseRules(base.TestCase):
         )
 
     def test_no_quotes(self):
-        input = u"""
+        input = """
         redirect /path /new/path
         """
         self.assertEqual(
@@ -53,7 +53,7 @@ class TestParseRules(base.TestCase):
         )
 
     def test_strip_quotes(self):
-        input = u"""
+        input = """
         redirectmatch 301 "^/releases.*$" http://releases.openstack.org$1
         """
         self.assertEqual(
@@ -70,7 +70,7 @@ class TestParseTests(base.TestCase):
         return list(parser.parse_tests(input))
 
     def test_skip_comments(self):
-        input = u"""
+        input = """
         #
         """
         self.assertEqual(
@@ -79,7 +79,7 @@ class TestParseTests(base.TestCase):
         )
 
     def test_skip_blank_lines(self):
-        input = u"""
+        input = """
 
         """
         self.assertEqual(
@@ -88,7 +88,7 @@ class TestParseTests(base.TestCase):
         )
 
     def test_no_quotes(self):
-        input = u"""
+        input = """
         /path 301 /new/path
         """
         self.assertEqual(
@@ -97,7 +97,7 @@ class TestParseTests(base.TestCase):
         )
 
     def test_strip_quotes(self):
-        input = u"""
+        input = """
         /releases/foo 301 http://releases.openstack.org/foo
         """
         self.assertEqual(
@@ -107,7 +107,7 @@ class TestParseTests(base.TestCase):
         )
 
     def test_410_rule(self):
-        input = u"""
+        input = """
         /releases 410
         """
         self.assertEqual(
@@ -116,7 +116,7 @@ class TestParseTests(base.TestCase):
         )
 
     def test_200_rule(self):
-        input = u"""
+        input = """
         /releases 200
         """
         self.assertEqual(
