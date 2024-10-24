@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2010-2011 OpenStack Foundation
 # Copyright (c) 2013 Hewlett-Packard Development Company, L.P.
 #
@@ -23,7 +21,7 @@ import re
 LOG = logging.getLogger()
 
 
-class Rule(object):
+class Rule:
     "Base class for rules."
 
     def __init__(self, linenum, *params):
@@ -74,7 +72,7 @@ class RedirectMatch(Rule):
     _group_subst = re.compile(r'(?<!\\)\$([0-9])')
 
     def __init__(self, linenum, *params):
-        super(RedirectMatch, self).__init__(linenum, *params)
+        super().__init__(linenum, *params)
         self.regex = pcre.compile(self.pattern)
         if self.target:
             self.target_repl = self._get_target_repl()
@@ -96,7 +94,7 @@ class RedirectMatch(Rule):
         return None
 
 
-class RuleSet(object):
+class RuleSet:
     "An ordered collection of rules."
 
     _factories = {
