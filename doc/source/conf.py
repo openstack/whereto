@@ -25,7 +25,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinxcontrib.autoprogram',
     'reno.sphinxext',
-    #'sphinx.ext.intersphinx',
+    # 'sphinx.ext.intersphinx',
 ]
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
@@ -82,4 +82,4 @@ latex_documents = [
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-#intersphinx_mapping = {'http://docs.python.org/': None}
+# intersphinx_mapping = {'http://docs.python.org/': None}
