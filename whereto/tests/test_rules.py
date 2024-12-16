@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -19,7 +17,7 @@ from whereto.tests import base
 class TestRedirect(base.TestCase):
 
     def setUp(self):
-        super(TestRedirect, self).setUp()
+        super().setUp()
         self.rule = rules.Redirect(
             1,
             'redirect', '301', '/path', '/new/path',
@@ -210,7 +208,7 @@ class TestRedirectMatch(base.TestCase):
 class TestRuleSet(base.TestCase):
 
     def setUp(self):
-        super(TestRuleSet, self).setUp()
+        super().setUp()
         self.ruleset = rules.RuleSet()
 
     def test_add_redirect(self):

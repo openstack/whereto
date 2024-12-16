@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2010-2011 OpenStack Foundation
 # Copyright (c) 2013 Hewlett-Packard Development Company, L.P.
 #
@@ -16,7 +14,6 @@
 # under the License.
 
 import argparse
-import io
 import logging
 import sys
 
@@ -188,12 +185,12 @@ def main():
     ruleset = rules.RuleSet()
 
     log.debug('reading redirects from {}'.format(args.htaccess_file))
-    with io.open(args.htaccess_file, 'r', encoding='utf-8') as f:
+    with open(args.htaccess_file, encoding='utf-8') as f:
         for linenum, params in parser.parse_rules(f):
             ruleset.add(linenum, *params)
 
     log.debug('reading tests from {}'.format(args.htaccess_file))
-    with io.open(args.test_file, 'r', encoding='utf-8') as f:
+    with open(args.test_file, encoding='utf-8') as f:
         tests = [
             (linenum,) + tuple(params)
             for linenum, params in parser.parse_tests(f)
