@@ -1,6 +1,7 @@
 [run]
 branch = True
 source = whereto
+omit = whereto/tests/*
 
 [report]
 ignore_errors = True
