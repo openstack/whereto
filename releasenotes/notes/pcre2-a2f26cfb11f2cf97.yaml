@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The PCRE library was replaced by PCRE2 library.
+
+  - |
+    A dollar mark ($) in target should be properly escaped to be used as
+    a raw character.
