@@ -45,7 +45,7 @@ class Rule:
                 self.pattern = params[1]
                 self.target = params[2]
         else:
-            raise ValueError('Could not understand rule {}'.format(params))
+            raise ValueError(f'Could not understand rule {params}')
 
     def __str__(self):
         return '[{}] {}'.format(
@@ -126,11 +126,15 @@ class RuleSet:
             try:
                 m = rule.match(path)
             except Exception as e:
-                LOG.warning('Failed to evaluate {} against {}: {}'.format(
-                    rule, path, e))
+                LOG.warning(
+                    'Failed to evaluate %s against %s: %s', rule, path, e
+                )
             else:
                 if m is not None:
                     LOG.debug(
-                        'Matched "{}" for path "{}" producing {}'.format(
-                            rule, path, m))
+                        'Matched "%s" for path "%s" producing %s',
+                        rule,
+                        path,
+                        m,
+                    )
                     return (rule.linenum,) + m

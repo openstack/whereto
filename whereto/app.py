@@ -20,6 +20,8 @@ import sys
 from whereto import parser
 from whereto import rules
 
+LOG = logging.getLogger(__name__)
+
 
 def _find_matches(ruleset, test):
     try:
@@ -29,10 +31,10 @@ def _find_matches(ruleset, test):
         if len(test) != 4:
             raise ValueError(
                 'Wrong number of arguments in test on line {}: {}'.format(
-                    linenum, ' '.join(test[1:]))
+                    linenum, ' '.join(test[1:])
+                )
             )
-        raise RuntimeError('Unable to process test {}: {}'.format(
-            test, e))
+        raise RuntimeError(f'Unable to process test {test}: {e}')
     seen = set()
     matches = []
     match = ruleset.match(input)
@@ -123,13 +125,15 @@ group.add_argument(
     help='error if there are untested rules',
 )
 argument_parser.add_argument(
-    '-m', '--max-hops',
+    '-m',
+    '--max-hops',
     type=int,
     default=0,
     help='how many hops are allowed',
 )
 argument_parser.add_argument(
-    '-v', '--verbose',
+    '-v',
+    '--verbose',
     dest='verbosity',
     default=[1],
     action='append_const',
@@ -137,7 +141,8 @@ argument_parser.add_argument(
     help='increase the verbosity by one level',
 )
 argument_parser.add_argument(
-    '-q', '--quiet',
+    '-q',
+    '--quiet',
     action='store_const',
     dest='verbosity',
     const=[],
@@ -154,14 +159,17 @@ argument_parser.add_argument(
 
 
 def show_test_and_matches(msg, test, matches):
-    logging.error(
-        '{} on line {}: {} should produce {} {}'.format(
-            msg, test[0], test[1], test[2], test[3] or '')
+    LOG.error(
+        '%s on line %s: %s should produce %s %s',
+        msg,
+        test[0],
+        test[1],
+        test[2],
+        test[3] or '',
     )
     path = test[1]
     for linenum, code, new_path in matches:
-        logging.error('   {} -> {} {} [line {}]'.format(
-            path, code, new_path, linenum))
+        LOG.error('   %s -> %s %s [line %s]', path, code, new_path, linenum)
 
 
 def main():
@@ -184,12 +192,12 @@ def main():
 
     ruleset = rules.RuleSet()
 
-    log.debug('reading redirects from {}'.format(args.htaccess_file))
+    log.debug('reading redirects from %s', args.htaccess_file)
     with open(args.htaccess_file, encoding='utf-8') as f:
         for linenum, params in parser.parse_rules(f):
             ruleset.add(linenum, *params)
 
-    log.debug('reading tests from {}'.format(args.htaccess_file))
+    log.debug('reading tests from %s', args.htaccess_file)
     with open(args.test_file, encoding='utf-8') as f:
         tests = [
             (linenum,) + tuple(params)
@@ -198,7 +206,8 @@ def main():
 
     failures = 0
     mismatches, cycles, too_many_hops, untested = process_tests(
-        ruleset, tests, args.max_hops)
+        ruleset, tests, args.max_hops
+    )
 
     for test, matches in mismatches:
         failures += 1
@@ -235,11 +244,11 @@ def main():
         log.debug('')
         for linenum in sorted(untested):
             if verbosity:
-                logging.error('Untested rule: {}'.format(ruleset[linenum]))
+                log.error('Untested rule: %s', ruleset[linenum])
             if args.error_untested:
                 failures += 1
 
     if failures:
-        logging.error('{} failures'.format(failures))
+        log.error('%s failures', failures)
         return 1
     return 0

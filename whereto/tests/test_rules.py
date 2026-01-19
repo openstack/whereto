@@ -15,13 +15,9 @@ from whereto.tests import base
 
 
 class TestRedirect(base.TestCase):
-
     def setUp(self):
         super().setUp()
-        self.rule = rules.Redirect(
-            1,
-            'redirect', '301', '/path', '/new/path',
-        )
+        self.rule = rules.Redirect(1, 'redirect', '301', '/path', '/new/path')
 
     def test_match(self):
         self.assertEqual(
@@ -35,10 +31,7 @@ class TestRedirect(base.TestCase):
         )
 
     def test_implied_code(self):
-        rule = rules.Redirect(
-            1,
-            'redirect', '/the/path', '/new/path',
-        )
+        rule = rules.Redirect(1, 'redirect', '/the/path', '/new/path')
         self.assertEqual(
             '301',
             rule.code,
@@ -67,7 +60,10 @@ class TestRedirect(base.TestCase):
     def test_410(self):
         rule = rules.Redirect(
             1,
-            'redirect', '410', '/the/path', None,
+            'redirect',
+            '410',
+            '/the/path',
+            None,
         )
         self.assertEqual(
             '410',
@@ -83,11 +79,9 @@ class TestRedirect(base.TestCase):
 
 
 class TestRedirectMatch(base.TestCase):
-
     def test_match(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/user/.*$', '/pike/user/',
+            1, 'redirectmatch', '301', '^/user/.*$', '/pike/user/'
         )
         self.assertEqual(
             ('301', '/pike/user/'),
@@ -96,17 +90,13 @@ class TestRedirectMatch(base.TestCase):
 
     def test_match_pcre_syntax(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/((?i)pike)/user/.*$', '/pike/user/',
+            1, 'redirectmatch', '301', '^/((?i)pike)/user/.*$', '/pike/user/'
         )
-        self.assertIsNone(
-            rule.match('/Pike/USER/')
-        )
+        self.assertIsNone(rule.match('/Pike/USER/'))
 
     def test_match_with_group(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/$1',
+            1, 'redirectmatch', '301', '^/user/(.*)$', '/pike/user/$1'
         )
         self.assertEqual(
             ('301', '/pike/user/foo'),
@@ -115,8 +105,7 @@ class TestRedirectMatch(base.TestCase):
 
     def test_match_with_group_braces(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/{1}/$1',
+            1, 'redirectmatch', '301', '^/user/(.*)$', '/pike/user/{1}/$1'
         )
         self.assertEqual(
             ('301', '/pike/user/{1}/foo'),
@@ -125,8 +114,7 @@ class TestRedirectMatch(base.TestCase):
 
     def test_match_with_no_group_dollar_escape(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/\\$a',
+            1, 'redirectmatch', '301', '^/user/(.*)$', '/pike/user/\\$a'
         )
         self.assertEqual(
             ('301', '/pike/user/$a'),
@@ -135,8 +123,7 @@ class TestRedirectMatch(base.TestCase):
 
     def test_match_with_group_escape(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/user/(.*)$', '/pike/user/\\$1',
+            1, 'redirectmatch', '301', '^/user/(.*)$', '/pike/user/\\$1'
         )
         self.assertEqual(
             ('301', '/pike/user/$1'),
@@ -145,8 +132,7 @@ class TestRedirectMatch(base.TestCase):
 
     def test_no_match(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/user/.*$', '/pike/user/',
+            1, 'redirectmatch', '301', '^/user/.*$', '/pike/user/'
         )
         self.assertIsNone(
             rule.match('/different/path'),
@@ -154,8 +140,7 @@ class TestRedirectMatch(base.TestCase):
 
     def test_implied_code(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '^/user/.*$', '/pike/user/',
+            1, 'redirectmatch', '^/user/.*$', '/pike/user/'
         )
         self.assertEqual(
             '301',
@@ -164,8 +149,7 @@ class TestRedirectMatch(base.TestCase):
 
     def test_str(self):
         rule = rules.RedirectMatch(
-            1,
-            'redirectmatch', '301', '^/user/.*$', '/pike/user/',
+            1, 'redirectmatch', '301', '^/user/.*$', '/pike/user/'
         )
         self.assertEqual(
             '[1] redirectmatch 301 ^/user/.*$ /pike/user/',
@@ -183,14 +167,23 @@ class TestRedirectMatch(base.TestCase):
         self.assertRaises(
             ValueError,
             rules.RedirectMatch,
-            (1, 'redirectmatch', '301', '/the/path', '/new/path',
-             'extra-value'),
+            (
+                1,
+                'redirectmatch',
+                '301',
+                '/the/path',
+                '/new/path',
+                'extra-value',
+            ),
         )
 
     def test_410(self):
         rule = rules.RedirectMatch(
             1,
-            'redirect', '410', '/the/path', None,
+            'redirect',
+            '410',
+            '/the/path',
+            None,
         )
         self.assertEqual(
             '410',
@@ -206,58 +199,36 @@ class TestRedirectMatch(base.TestCase):
 
 
 class TestRuleSet(base.TestCase):
-
     def setUp(self):
         super().setUp()
         self.ruleset = rules.RuleSet()
 
     def test_add_redirect(self):
-        self.ruleset.add(
-            1,
-            'redirect', '301', '/path', '/new/path',
-        )
+        self.ruleset.add(1, 'redirect', '301', '/path', '/new/path')
         self.assertEqual(1, len(self.ruleset._rules))
         self.assertIsInstance(self.ruleset._rules[0], rules.Redirect)
 
     def test_add_redirectmatch(self):
-        self.ruleset.add(
-            1,
-            'redirectmatch', '301', '/path', '/new/path',
-        )
+        self.ruleset.add(1, 'redirectmatch', '301', '/path', '/new/path')
         self.assertEqual(1, len(self.ruleset._rules))
         self.assertIsInstance(self.ruleset._rules[0], rules.RedirectMatch)
 
     def test_all_ids(self):
-        self.ruleset.add(
-            1,
-            'redirect', '301', '/path', '/new/path',
-        )
+        self.ruleset.add(1, 'redirect', '301', '/path', '/new/path')
         self.assertEqual([1], self.ruleset.all_ids)
-        self.ruleset.add(
-            2,
-            'redirect', '301', '/path', '/other/path',
-        )
+        self.ruleset.add(2, 'redirect', '301', '/path', '/other/path')
         self.assertEqual([1, 2], self.ruleset.all_ids)
 
     def test_match_one(self):
-        self.ruleset.add(
-            1,
-            'redirect', '301', '/path', '/new/path',
-        )
+        self.ruleset.add(1, 'redirect', '301', '/path', '/new/path')
         self.assertEqual(
             (1, '301', '/new/path'),
             self.ruleset.match('/path'),
         )
 
     def test_match_multiple(self):
-        self.ruleset.add(
-            1,
-            'redirect', '301', '/path', '/new/path',
-        )
-        self.ruleset.add(
-            2,
-            'redirect', '301', '/path', '/other/path',
-        )
+        self.ruleset.add(1, 'redirect', '301', '/path', '/new/path')
+        self.ruleset.add(2, 'redirect', '301', '/path', '/other/path')
         self.assertEqual(
             (1, '301', '/new/path'),
             self.ruleset.match('/path'),

@@ -18,7 +18,6 @@ from whereto.tests import base
 
 
 class TestParseRules(base.TestCase):
-
     def parse(self, text):
         input = io.StringIO(textwrap.dedent(text))
         return list(parser.parse_rules(input))
@@ -55,14 +54,22 @@ class TestParseRules(base.TestCase):
         redirectmatch 301 "^/releases.*$" http://releases.openstack.org$1
         """
         self.assertEqual(
-            [(2, ['redirectmatch', '301', '^/releases.*$',
-                  'http://releases.openstack.org$1'])],
+            [
+                (
+                    2,
+                    [
+                        'redirectmatch',
+                        '301',
+                        '^/releases.*$',
+                        'http://releases.openstack.org$1',
+                    ],
+                )
+            ],
             self.parse(input),
         )
 
 
 class TestParseTests(base.TestCase):
-
     def parse(self, text):
         input = io.StringIO(textwrap.dedent(text))
         return list(parser.parse_tests(input))
@@ -99,8 +106,16 @@ class TestParseTests(base.TestCase):
         /releases/foo 301 http://releases.openstack.org/foo
         """
         self.assertEqual(
-            [(2, ['/releases/foo', '301',
-                  'http://releases.openstack.org/foo'])],
+            [
+                (
+                    2,
+                    [
+                        '/releases/foo',
+                        '301',
+                        'http://releases.openstack.org/foo',
+                    ],
+                )
+            ],
             self.parse(input),
         )
 
