@@ -16,14 +16,28 @@
 import argparse
 import logging
 import sys
+from typing import TypeAlias
 
 from whereto import parser
 from whereto import rules
 
 LOG = logging.getLogger(__name__)
 
+# Type aliases for readability
+# A test is (linenum, input_path, expected_code, expected_target)
+Test: TypeAlias = tuple[int, str | None, str | None, str | None]
+# A match result is (linenum, code, new_path)
+Match: TypeAlias = tuple[int, str, str | None]
+# A result from a test
+TestResult: TypeAlias = tuple[
+    list[tuple[Test, list[Match]]],
+    list[tuple[Test, list[Match]]],
+    list[tuple[Test, list[Match]]],
+    set[int],
+]
 
-def _find_matches(ruleset, test):
+
+def _find_matches(ruleset: rules.RuleSet, test: Test) -> list[Match]:
     try:
         linenum, input, code, expected = test
     except ValueError as e:
@@ -31,12 +45,14 @@ def _find_matches(ruleset, test):
         if len(test) != 4:
             raise ValueError(
                 'Wrong number of arguments in test on line {}: {}'.format(
-                    linenum, ' '.join(test[1:])
+                    linenum, ' '.join(str(t) for t in test[1:] if t)
                 )
             )
         raise RuntimeError(f'Unable to process test {test}: {e}')
-    seen = set()
-    matches = []
+    seen: set[int] = set()
+    matches: list[Match] = []
+    if input is None:
+        return matches
     match = ruleset.match(input)
     while match is not None and len(matches) < 5:
         matches.append(match)
@@ -52,7 +68,9 @@ def _find_matches(ruleset, test):
     return matches
 
 
-def process_tests(ruleset, tests, max_hops):
+def process_tests(
+    ruleset: rules.RuleSet, tests: list[Test], max_hops: int
+) -> TestResult:
     """Run the tests against the ruleset and return the results.
 
     The return value is a tuple containing a list of tuples with the
@@ -68,10 +86,10 @@ def process_tests(ruleset, tests, max_hops):
     :type ruleset: RuleSet
 
     """
-    used = set()
-    mismatches = []
-    cycles = []
-    too_many_hops = []
+    used: set[int] = set()
+    mismatches: list[tuple[Test, list[Match]]] = []
+    cycles: list[tuple[Test, list[Match]]] = []
+    too_many_hops: list[tuple[Test, list[Match]]] = []
     for test in tests:
         matches = _find_matches(ruleset, test)
         if not matches:
@@ -158,7 +176,7 @@ argument_parser.add_argument(
 )
 
 
-def show_test_and_matches(msg, test, matches):
+def show_test_and_matches(msg: str, test: Test, matches: list[Match]) -> None:
     LOG.error(
         '%s on line %s: %s should produce %s %s',
         msg,
@@ -172,7 +190,7 @@ def show_test_and_matches(msg, test, matches):
         LOG.error('   %s -> %s %s [line %s]', path, code, new_path, linenum)
 
 
-def main():
+def main() -> int:
     args = argument_parser.parse_args()
 
     verbosity = sum(args.verbosity)
@@ -199,10 +217,16 @@ def main():
 
     log.debug('reading tests from %s', args.htaccess_file)
     with open(args.test_file, encoding='utf-8') as f:
-        tests = [
-            (linenum,) + tuple(params)
-            for linenum, params in parser.parse_tests(f)
-        ]
+        tests: list[Test] = []
+        for linenum, test_params in parser.parse_tests(f):
+            # test_params has 3 elements: input_path, code, target
+            test: Test = (
+                linenum,
+                test_params[0],
+                test_params[1],
+                test_params[2],
+            )
+            tests.append(test)
 
     failures = 0
     mismatches, cycles, too_many_hops, untested = process_tests(

@@ -27,7 +27,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/alternate/path', '301', '/new/path')],
             0,
         )
-        expected = (
+        expected: app.TestResult = (
             [((1, '/alternate/path', '301', '/new/path'), [])],
             [],
             [],
@@ -42,7 +42,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/path', '301', '/new/path')],
             0,
         )
-        expected = ([], [], [], set())
+        expected: app.TestResult = ([], [], [], set())
         self.assertEqual(expected, actual)
 
     def test_one_match_regex(self):
@@ -54,7 +54,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/regex/path', '301', '/new/regex/path')],
             0,
         )
-        expected = ([], [], [], set())
+        expected: app.TestResult = ([], [], [], set())
         self.assertEqual(expected, actual)
 
     def test_one_match_410(self):
@@ -70,7 +70,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/gone/path', '410', None)],
             0,
         )
-        expected = ([], [], [], set())
+        expected: app.TestResult = ([], [], [], set())
         self.assertEqual(expected, actual)
 
     def test_two_matches(self):
@@ -81,12 +81,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/path', '301', '/new/path')],
             0,
         )
-        expected = (
-            [],
-            [],
-            [],
-            {2},
-        )
+        expected: app.TestResult = ([], [], [], {2})
         self.assertEqual(expected, actual)
 
     def test_mismatch(self):
@@ -96,7 +91,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/path', '301', '/new/path')],
             0,
         )
-        expected = (
+        expected: app.TestResult = (
             [((1, '/path', '301', '/new/path'), [(1, '301', '/new/path/')])],
             [],
             [],
@@ -112,7 +107,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/path', '301', '/new/path')],
             0,
         )
-        expected = (
+        expected: app.TestResult = (
             [],
             [
                 (
@@ -138,7 +133,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/path', '301', '/new/path')],
             1,
         )
-        expected = (
+        expected: app.TestResult = (
             [],
             [],
             [
@@ -162,7 +157,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/another/path', '200', None)],
             0,
         )
-        expected = ([], [], [], set())
+        expected: app.TestResult = ([], [], [], set())
         self.assertEqual(expected, actual)
 
     def test_200_test_rule_mismatch(self):
@@ -172,7 +167,7 @@ class TestProcessTests(base.TestCase):
             [(1, '/path', '200', None)],
             0,
         )
-        expected = (
+        expected: app.TestResult = (
             [((1, '/path', '200', None), [(1, '301', '/new/path')])],
             [],
             [],

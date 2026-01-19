@@ -13,10 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Iterable, Iterator
 import shlex
 
 
-def parse_rules(fd):
+def parse_rules(fd: Iterable[str]) -> Iterator[tuple[int, list[str]]]:
     """Parse an open file containing redirect rules.
 
     Generates a sequence of tuples containing line numbers and the
@@ -37,7 +38,9 @@ def parse_rules(fd):
         yield (num, shlex.split(line))
 
 
-def parse_tests(fd):
+def parse_tests(
+    fd: Iterable[str],
+) -> Iterator[tuple[int, list[str | None]]]:
     """Parse an open file containing tests for redirect rules.
 
     Generates a sequence of tuples containing line numbers and the
@@ -52,6 +55,7 @@ def parse_tests(fd):
     # A test line looks like a rule line except that it might not have
     # the same number of parts.
     for linenum, test in parse_rules(fd):
-        if len(test) < 3:
-            test = (test + [None, None, None])[:3]
-        yield (linenum, test)
+        padded_test: list[str | None] = list(test)
+        if len(padded_test) < 3:
+            padded_test = (padded_test + [None, None, None])[:3]
+        yield (linenum, padded_test)

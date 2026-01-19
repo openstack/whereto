@@ -13,10 +13,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from __future__ import annotations
+
+from collections.abc import Iterator
 import logging
-import pcre2
 import re
 
+import pcre2
 
 LOG = logging.getLogger()
 
@@ -24,15 +27,24 @@ LOG = logging.getLogger()
 class Rule:
     "Base class for rules."
 
-    def __init__(self, linenum, *params):
+    linenum: int
+    code: str
+    pattern: str
+    target: str | None
+
+    def __init__(self, linenum: int, *params: str | None) -> None:
         self.linenum = linenum
         self._params = params
         if len(params) == 4:
             # redirect code pattern target
+            assert params[1] is not None
+            assert params[2] is not None
             self.code = params[1]
             self.pattern = params[2]
             self.target = params[3]
         elif len(params) == 3:
+            assert params[1] is not None
+            assert params[2] is not None
             if params[1] == '410':
                 # The page has been deleted and is not coming back.
                 self.code = params[1]
@@ -47,20 +59,20 @@ class Rule:
         else:
             raise ValueError(f'Could not understand rule {params}')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '[{}] {}'.format(
             self.linenum,
             ' '.join(p for p in self._params if p),
         )
 
-    def match(self, path):
+    def match(self, path: str) -> tuple[str, str | None] | None:
         raise NotImplementedError('Base class does not implement match()')
 
 
 class Redirect(Rule):
     "A Redirect rule."
 
-    def match(self, path):
+    def match(self, path: str) -> tuple[str, str | None] | None:
         if path == self.pattern:
             return (self.code, self.target)
         return None
@@ -71,18 +83,18 @@ class RedirectMatch(Rule):
 
     _group_subst = re.compile(r'(?<!\\)\$([0-9])')
 
-    def __init__(self, linenum, *params):
+    def __init__(self, linenum: int, *params: str | None) -> None:
         super().__init__(linenum, *params)
         self.regex = pcre2.compile(self.pattern)
         if self.target:
-            self.target_repl = self._get_target_repl()
+            self.target_repl: str | None = self._get_target_repl()
         else:
             self.target_repl = None
 
-    def _get_target_repl(self):
+    def _get_target_repl(self) -> str | None:
         return self.target
 
-    def match(self, path):
+    def match(self, path: str) -> tuple[str, str | None] | None:
         m = self.regex.search(path)
         if m:
             if self.target_repl:
@@ -96,32 +108,33 @@ class RedirectMatch(Rule):
 class RuleSet:
     "An ordered collection of rules."
 
-    _factories = {
+    _factories: dict[str, type[Rule]] = {
         'redirect': Redirect,
         'redirectmatch': RedirectMatch,
     }
 
-    def __init__(self):
-        self._rules = []
-        self._by_num = {}
+    def __init__(self) -> None:
+        self._rules: list[Rule] = []
+        self._by_num: dict[int, Rule] = {}
 
-    def add(self, linenum, *params):
+    def add(self, linenum: int, *params: str | None) -> None:
+        assert params[0] is not None
         rule_type = params[0].lower()
         rule = self._factories[rule_type](linenum, *params)
         self._rules.append(rule)
         self._by_num[linenum] = rule
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Rule:
         return self._by_num[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Rule]:
         return iter(self._rules)
 
     @property
-    def all_ids(self):
+    def all_ids(self) -> list[int]:
         return list(self._by_num.keys())
 
-    def match(self, path):
+    def match(self, path: str) -> tuple[int, str, str | None] | None:
         for rule in self:
             try:
                 m = rule.match(path)
@@ -138,3 +151,4 @@ class RuleSet:
                         m,
                     )
                     return (rule.linenum,) + m
+        return None
