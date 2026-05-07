@@ -10,7 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import cast
+import warnings
+
 import pbr.version
 
 
-__version__ = pbr.version.VersionInfo('whereto').version_string()
+def __getattr__(name: str) -> str:
+    if name == '__version__':
+        warnings.warn(
+            "Accessing whereto.__version__ is deprecated and will be "
+            "removed in a future release. Use importlib.metadata instead: "
+            "importlib.metadata.version('whereto')",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return cast(str, pbr.version.VersionInfo('whereto').version_string())
+    raise AttributeError(f"module 'whereto' has no attribute {name!r}")
